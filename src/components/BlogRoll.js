@@ -5,18 +5,18 @@ import PreviewCompatibleImage from './PreviewCompatibleImage'
 
 class BlogRoll extends React.Component {
   render() {
-    const { data } = this.props
+    const { data, lang } = this.props
     const { edges: posts } = data.allMarkdownRemark
 
     return (
       <div className="columns is-multiline">
         {posts &&
           posts.map(({ node: post }) => (
+            post.lang === lang &&
             <div className="is-parent column is-6" key={post.id}>
               <article
-                className={`blog-list-item tile is-child box notification ${
-                  post.frontmatter.featuredpost ? 'is-featured' : ''
-                }`}
+                className={`blog-list-item tile is-child box notification ${post.frontmatter.featuredpost ? 'is-featured' : ''
+                  }`}
               >
                 <header>
                   {post.frontmatter.featuredimage ? (
@@ -63,12 +63,14 @@ BlogRoll.propTypes = {
     allMarkdownRemark: PropTypes.shape({
       edges: PropTypes.array,
     }),
-  }),
+  })
 }
 
-export default () => (
-  <StaticQuery
-    query={graphql`
+export default class BlogRollTemplate extends React.Component {
+  render() {
+    return (
+    <StaticQuery
+      query={graphql`
       query BlogRollQuery {
         allMarkdownRemark(
           sort: { order: DESC, fields: [frontmatter___date] }
@@ -99,6 +101,8 @@ export default () => (
         }
       }
     `}
-    render={(data, count) => <BlogRoll data={data} count={count} />}
-  />
-)
+      render={(data, count) => <BlogRoll data={data} count={count} lang={this.props.lang} />}
+    />
+    )
+  }
+}
